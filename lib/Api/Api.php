@@ -47,7 +47,6 @@ class Api{
    */
   public function __construct($auth){
 
-    //TODO: there will be different API url's??
     $this->auth = $auth;
   }
 
@@ -115,8 +114,8 @@ class Api{
       return $this->setError('Search parameters missing.');
     
     } else {
-      $wrongParam = FALSE;
       //If there is a parameter in the search that is not allowed, flag it for later error
+      $wrongParam = FALSE;
       foreach (array_keys($searchParams) as $param) {
         if (!in_array($param, $this->allowedSearchParameters)){
           //Yes, found one
@@ -221,11 +220,12 @@ class Api{
           'data'  => ($singleItem ? [$body[key($body)]] : $body[key($body)]),
         ];
       } else {
-        //Response has an error
+        //Response returns an error from the API
         $response = $this->setError($body['errors']);
       }
 
     } else {
+      //No response, error
       $response = $this->setError('Error during CURL execution');
     }
 

@@ -73,7 +73,7 @@ class GenericAuth{
 
 
   /**
-   * Setter. Sets the Response Message (error) returned by the API call after doing an Auth call.
+   * Returns an error message to be used as output
    *
    * @param array|string  $values   
    *   Array to output if debug flag is active

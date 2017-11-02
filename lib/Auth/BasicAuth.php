@@ -80,9 +80,9 @@ class BasicAuth extends GenericAuth{
       throw new Exception('One or more required parameters was not supplied. Both email and password required!');
     }
     //All good, we store the vars in the object vars
-    $this->_email          = $email;
-    $this->_password       = $password;
-    $this->_url            = $url;
+    $this->_email    = $email;
+    $this->_password = $password;
+    $this->_url      = $url;
 
     if(!empty($access_token)){
       //We have stored (somehow) the token from a previous call.
