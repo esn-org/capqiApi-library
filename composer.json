@@ -1,0 +1,15 @@
+{
+  "name": "Capqi/api",
+  "license": "",
+  "type": "library",
+  "description": "Capqi API Connector Library",
+  "autoload": {
+    "psr-4": {
+      "Capqi\\": "lib/"
+    }
+  },
+  "require": {
+    "php": ">=5.3.7",
+    "ext-curl": "*"
+  }
+}
