@@ -27,7 +27,6 @@ class Employers extends Api{
    */
   protected $allowedSearchParameters = ['employer_name', 'country_code'];
 
-
   /**
    * Does the API request to search for all the items of this collection
    *
@@ -36,8 +35,17 @@ class Employers extends Api{
    */
   public function getList(){
 
-    //This is a special type of get with no $id as argument
-    return $this->get('');
+    return $this->genericGetList();
   }
 
+  /**
+   * Does the API request to search for all the items of this collection
+   *
+   * @return array
+   *   Array with the response from the API request
+   */
+  public function get($id){
+
+    return $this->genericGet($id);
+  }
 }

@@ -78,6 +78,13 @@ class Api{
   }
 
 
+  public function genericGetList(){
+
+    //This is a special type of get with no $id as argument
+    return $this->getElements('');
+  }
+
+
   /**
    * Does a GET request to the API to get one item.
    *
@@ -87,7 +94,31 @@ class Api{
    * @return array
    *   An array with the information gotten from the API call
    */
-  public function get($id){
+  public function genericGet($id = ''){
+
+    if ($id == ''){
+      $response = [
+        'type'  => 'response',
+        'total' => 0,
+        'data'  => [],
+      ];
+      return $response;
+    } else {
+      return $this->getElements($id);  
+    }
+  }
+
+
+  /**
+   * Does a GET request to the API to get one item.
+   *
+   * @param int   $id
+   *   The id of the item we want to get from the API
+   *
+   * @return array
+   *   An array with the information gotten from the API call
+   */
+  private function getElements($id){
 
     $url = $this->endpoint;
     if ($id != ''){
@@ -141,7 +172,7 @@ class Api{
    * @return array
    *   An array with the error message set
    */
-  public function setError($message){
+  private function setError($message){
 
     $error = array(
       'type'    => 'error',
@@ -167,7 +198,7 @@ class Api{
    * @return array
    *   Array with the response from the API request
    */
-  public function makeRequest($endpoint, $parameters = array(), $method = 'GET'){
+  private function makeRequest($endpoint, $parameters = array(), $method = 'GET'){
     //We set the start of the endpoint
     $url    = $endpoint;
     $method = strtoupper($method);
