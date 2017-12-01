@@ -22,7 +22,7 @@ class CapqiAuth{
    *
    * @var string
    */
-  private $baseUrl = 'http://transparencyatwork.org/api/partners/v1/';
+  private $baseUrl = 'https://transparencyatwork.org/api/partners/v1/';
 
 
   /**
