@@ -11,6 +11,7 @@
 namespace Capqi\Auth;
 
 use \Exception;
+use Capqi\Functions\Urls;
 
 /**
 * Generic REST class that connects with the API (For Auth, GET, PUT...)
@@ -139,6 +140,12 @@ class GenericAuth{
     curl_close($curl);
     //Return the body decoded with the response in an array format
     return $body;
+  }
+
+
+  public function getApiHostUrlonly(){
+    $url = Urls::parse($this->_url);
+    return Urls::generateUrl($url);
   }
 
 }

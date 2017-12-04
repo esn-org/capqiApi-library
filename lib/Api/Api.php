@@ -38,6 +38,13 @@ class Api{
    */
   protected $allowedSearchParameters = array();
 
+  /**
+   * The response from the API call (ok or error)
+   *
+   * @var array
+   */
+  private $_response;
+
 
   /**
    * Constructor
@@ -78,6 +85,12 @@ class Api{
   }
 
 
+  /**
+   * Does a GET request to the API to get the list of all employers.
+   *
+   * @return array
+   *   An array with the information gotten from the API call
+   */
   public function genericGetList(){
 
     //This is a special type of get with no $id as argument
@@ -97,13 +110,15 @@ class Api{
   public function genericGet($id = ''){
 
     if ($id == ''){
+      //We dont allow this function witn an empty $id. That is only for the list of employers
       $response = [
         'type'  => 'response',
         'total' => 0,
         'data'  => [],
       ];
-      return $response;
+      return $this->_setResponse($response);
     } else {
+      //We get an $id, so we get this employer
       return $this->getElements($id);  
     }
   }
@@ -260,6 +275,21 @@ class Api{
       $response = $this->setError('Error during CURL execution');
     }
 
+    return $this->_setResponse($response);
+  }
+
+
+  /**
+   * Store locally in the object and then return the response.
+   *
+   * @param array  $response
+   *   The response from the API call
+   *
+   * @return array
+   *   The response from the API call
+   */
+  private function _setResponse($response){
+    $this->_response = $response;
     return $response;
   }
 
