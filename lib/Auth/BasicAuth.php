@@ -146,6 +146,17 @@ class BasicAuth extends GenericAuth{
 
 
   /**
+   * Getter. Gets the API base url.
+   *
+   * @return string 
+   *   The API base url.
+   */
+  public function getApiMail(){
+    return $this->_email;
+  }
+
+
+  /**
    * Getter. Gets the API access_token linked to the logged user.
    *
    * @return string
