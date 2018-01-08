@@ -259,12 +259,22 @@ class Api{
     if (!empty($body)){
       if(!isset($body['errors'])){
         //Respone is fine, no errors
-        $singleItem = (in_array(key($body), ['employer']) ? true : false );
-        $response = [
-          'type'  => 'response',
-          'total' => ($singleItem ? 1                   : count($body[key($body)])),
-          'data'  => ($singleItem ? [$body[key($body)]] : $body[key($body)]),
-        ];
+        if ( (in_array(key($body), ['employers']) && $body['employers'] != NULL) || 
+             (in_array(key($body), ['employer']) && $body['employer'] != NULL)) {
+
+          //We can have one employer or multiple because the endpoint is the same except for the parameter
+          //But the response is different, so we need this
+          $singleItem = (in_array(key($body), ['employer']) ? true : false );
+          $response = [
+            'type'  => 'response',
+            'total' => ($singleItem ? 1                   : count($body[key($body)])),
+            'data'  => ($singleItem ? [$body[key($body)]] : $body[key($body)]),
+          ];
+
+        } else {
+          $response = $this->setError('Error in API response');
+        }
+
       } else {
         //Response returns an error from the API
         $response = $this->setError($body['errors']);
