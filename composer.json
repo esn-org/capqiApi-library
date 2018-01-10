@@ -2,7 +2,7 @@
   "name": "Capqi/api",
   "license": "",
   "type": "library",
-  "description": "Capqi API Connector Library",
+  "description": "Capqi API PHP Library",
   "autoload": {
     "psr-4": {
       "Capqi\\": "lib/"
@@ -11,5 +11,13 @@
   "require": {
     "php": ">=5.3.7",
     "ext-curl": "*"
-  }
+  },
+  "authors": [
+    {
+      "name": "Gorka Guerrero",
+      "email": "web-developer@esn.org",
+      "homepage": "https://esn.org",
+      "role": "Web Developer"
+    }
+  ]
 }

@@ -12,6 +12,7 @@ namespace Capqi\Api;
 
 use Capqi\Functions\Urls;
 
+define("PAGE_ITEMS", 15);
 
 /**
  * Employers Collection
@@ -30,18 +31,18 @@ class Employers extends Api{
   protected $allowedSearchParameters = ['employer_name', 'country_code'];
 
   /**
-   * Does the API request to search for all the items of this collection
+   * Does the API request to get all the items of this collection
    *
    * @return array
    *   Array with the response from the API request
    */
   public function getList(){
 
-    return $this->genericGetList();
+    return $this->genericGetFullList();
   }
 
   /**
-   * Does the API request to search for all the items of this collection
+   * Does the API request to get an item of this collection
    *
    * @return array
    *   Array with the response from the API request
@@ -53,7 +54,22 @@ class Employers extends Api{
 
 
   /**
+   * Does the API request to get all the items on a page (PAGE_ITEMS) of this collection
+   *
+   * @param int  $page
+   *   The page we want to get the list of employers
+   *
+   * @return array
+   *   Array with the response from the API request
+   */
+  public function getListPage($page = 1){
+
+    return $this->genericGetList($page);
+  }
+
+  /**
    * Creates and returns the URL to the employer profile in the website
+   * @deprecated Added profile_url in response
    *
    * @param string $user
    *   The user name (tw_id) of the employer

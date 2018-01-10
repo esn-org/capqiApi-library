@@ -146,7 +146,7 @@ class BasicAuth extends GenericAuth{
 
 
   /**
-   * Getter. Gets the API base url.
+   * Getter. Gets the API email linked to the logged user.
    *
    * @return string 
    *   The API base url.
