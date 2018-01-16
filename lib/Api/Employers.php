@@ -30,6 +30,7 @@ class Employers extends Api{
    */
   protected $allowedSearchParameters = ['employer_name', 'country_code'];
 
+
   /**
    * Does the API request to get all the items of this collection
    *
@@ -38,8 +39,9 @@ class Employers extends Api{
    */
   public function getList(){
 
-    return $this->genericGetFullList();
+    return $this->getFullList();
   }
+
 
   /**
    * Does the API request to get an item of this collection
@@ -57,15 +59,18 @@ class Employers extends Api{
    * Does the API request to get all the items on a page (PAGE_ITEMS) of this collection
    *
    * @param int  $page
-   *   The page we want to get the list of employers
+   *   The page we want to get the list of employers. Default value = 1
+   * @param int  $items
+   *   The number of items (employers) we want to get. Default value = PAGE_ITEMS
    *
    * @return array
    *   Array with the response from the API request
    */
-  public function getListPage($page = 1){
+  public function getListPage($page = 1, $items = PAGE_ITEMS){
 
-    return $this->genericGetList($page);
+    return $this->getSinglePageList($page, $items);
   }
+
 
   /**
    * Creates and returns the URL to the employer profile in the website

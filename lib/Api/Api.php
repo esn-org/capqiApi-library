@@ -12,7 +12,9 @@ namespace Capqi\Api;
 
 use \Exception;
 
-defined('PAGE_ITEMS') or define('PAGE_ITEMS', 15);
+//Default quantity of items per page. Can be overwritten later in the function
+//It is defined in the Employers.php file and if not, then defined here
+defined('PAGE_ITEMS') or define('PAGE_ITEMS', 25);
 
 /**
  * Main API class, it will be extended by all the collections later
@@ -73,7 +75,7 @@ class Api{
 
 
   /**
-   * Sets the debug flag.
+   * Sets the debug values.
    *
    * @param array|string  $values
    *   Array of values to be debugged   
@@ -81,106 +83,11 @@ class Api{
    * @return string 
    *   The debug message
    */
-  public function debug($values){
+  public function setDebugMsg($values){
 
-    return $this->auth->debug($values);
+    return $this->auth->setDebugMsg($values);
   }
 
-  /**
-   * Does a GET request to the API to get the list of employers (PAGE_ITEMS) in one page.
-   *
-   * @param int  $page
-   *   The page we want to get the list of employers  
-   *
-   * @return array
-   *   An array with the information gotten from the API call
-   */
-  public function genericGetList($page){
-
-    //Check if parameter is correct
-    if ($page < 1){
-      return $this->setError('Page cannot be lower than 1.');
-    }
-
-    $url = $this->endpoint;
-    if ($page != 1){
-      //If the page is not the first, we have to specify the page parameter in the url
-      $url = $this->endpoint.'?page='.$page;
-    }
-    return $this->makeRequest($url);
-  }
-
-
-  /**
-   * Does a GET request to the API to get the list of all employers, looping through all the pages.
-   *
-   * @return array
-   *   An array with the information gotten from the API call
-   */
-  public function genericGetFullList(){
-
-    //First page and condition to stop the loop (initial value is false)
-    $i = 1;
-    $stop = true;
-    //Response we will return
-    $response = [
-      'type'  => 'response',
-      'total' => 0,
-      'data'  => [],
-    ];
-
-    //We loop always till we meet the stop condition
-    do {
-      //We get the i-position page
-      $pageResponse = $this->genericGetList($i);
-      //Get the data from the page response to add to the main response
-      if ($pageResponse['type'] == 'response' && $pageResponse['data'] != NULL){
-        $total = $pageResponse['total'];
-        $response['total'] += $total;
-        $response['data'] = array_merge($response['data'], $pageResponse['data']);
-        //Update the loop values ($i) 
-        //and check if we meet the condition (items lower than value) to finish the loop ($stop)
-        $i++;
-        if($total < PAGE_ITEMS){
-          $stop = false;
-        } 
-
-      } else {
-        //Error in the response, then we stop the execution to avoid infinite loops or unexpected situations
-        $stop = false;  
-      }
-    //Continue the iteration till $stop is false
-    } while($stop);
-
-    return $response;
-  }
-
-
-  /**
-   * Does a GET request to the API to get one item.
-   *
-   * @param int   $id
-   *   The id of the item we want to get from the API
-   *
-   * @return array
-   *   An array with the information gotten from the API call
-   */
-  public function genericGet($id = ''){
-
-    if ($id == ''){
-      //We dont allow this function witn an empty $id. That is only for the list of employers
-      $response = [
-        'type'  => 'response',
-        'total' => 0,
-        'data'  => [],
-      ];
-      return $this->_setResponse($response);
-    } else {
-      //We get an $id, so we get this employer
-      $url = $this->endpoint.'/'.$id;
-      return $this->makeRequest($url);
-    }
-  }
 
   /**
    * Does a GET request to the API to search for items depending on the parameters.
@@ -217,22 +124,99 @@ class Api{
 
 
   /**
-   * Returns an error message.
+   * Does a GET request to the API to get the list of employers (PAGE_ITEMS) in one page.
    *
-   * @param string  $message
-   *   The error message that is in the array we are returning
+   * @param int  $page
+   *   The page we want to get the list of employers  
+   * @param int  $items
+   *   The number of items (employers) we want to get. Default value = PAGE_ITEMS 
    *
    * @return array
-   *   An array with the error message set
+   *   An array with the information gotten from the API call
    */
-  private function setError($message){
+  protected function getSinglePageList($page, $items){
 
-    $error = array(
-      'type'    => 'error',
-      'message' => $message,
-    );
+    //Check if parameter is correct
+    if ($page < 1){
+      return $this->setError('Page cannot be lower than 1.');
+    }
 
-    return $error;
+    $url = $this->endpoint.'?per='.$items;
+    if ($page != 1){
+      //If the page is not the first, we have to specify the page parameter in the url
+      $url .= '&page='.$page;
+    }
+    return $this->makeRequest($url, [], 'GET', TRUE);
+  }
+
+
+  /**
+   * Does a GET request to the API to get the list of all employers, looping through all the pages.
+   *
+   * @return array
+   *   An array with the information gotten from the API call
+   */
+  protected function getFullList(){
+    
+    $i = 1;
+    $stop = true;
+    //Response we will return
+    $response = [
+      'type'  => 'response',
+      'total' => 0,
+      'data'  => [],
+    ];
+
+    //We loop always till we meet the stop condition
+    do {
+      //We get the i-position page
+      $pageResponse = $this->getSinglePageList($i, PAGE_ITEMS);
+      //Get the data from the page response to add to the main response
+      if ($pageResponse['type'] == 'response' && $pageResponse['data'] != NULL){
+        $response['total'] += $pageResponse['total'];
+        $response['data']  = array_merge($response['data'], $pageResponse['data']);
+        //Update the loop values ($i) 
+        //and check if we meet the condition (items lower than value) to finish the loop ($stop)
+        $i++;
+        if($pageResponse['page_info']['page'] == $pageResponse['page_info']['total_pages']){
+          $stop = false;
+        } 
+
+      } else {
+        //Error in the response, then we stop the execution to avoid infinite loops or unexpected situations
+        $stop = false;  
+      }
+    //Continue the iteration till $stop is false
+    } while($stop);
+
+    return $response;
+  }
+
+
+  /**
+   * Does a GET request to the API to get one item.
+   *
+   * @param int   $id
+   *   The id of the item we want to get from the API
+   *
+   * @return array
+   *   An array with the information gotten from the API call
+   */
+  protected function genericGet($id = ''){
+
+    if ($id == ''){
+      //We dont allow this function witn an empty $id. That is only for the list of employers
+      $response = [
+        'type'  => 'response',
+        'total' => 0,
+        'data'  => [],
+      ];
+      return $this->_setResponse($response);
+    } else {
+      //We get an $id, so we get this employer
+      $url = $this->endpoint.'/'.$id;
+      return $this->makeRequest($url);
+    }
   }
 
 
@@ -251,13 +235,13 @@ class Api{
    * @return array
    *   Array with the response from the API request
    */
-  private function makeRequest($endpoint, $parameters = array(), $method = 'GET'){
+  private function makeRequest($endpoint, $parameters = array(), $method = 'GET', $paginated = FALSE){
     //We set the start of the endpoint
     $url    = $endpoint;
     $method = strtoupper($method);
     $data   = [];
 
-    //IT can be a GET with some parameters (i.e. search)
+    //It can be a GET with some parameters (i.e. search)
     if (!empty($parameters) && $method == 'GET'){
       $queryArray = [];
       //We loop all the parameters
@@ -278,18 +262,22 @@ class Api{
       }
     }
 
+    //We set different CURL options depending if it is a GET or a POST
     if ($method == 'GET'){
       $options = $this->auth->setCurlGetOptions($url);  
     
     } else if ($method == 'POST'){
-      //should we accept PUT and PATCH too as methods??
+      //TODO:: should we accept PUT and PATCH too as methods??
+      //Or control we have the data at least?
+
+      //We need the data because is a POST
       $options = $this->auth->setCurlPostOptions($data, $url);
 
     } else {
       //Throw exception ??
     }
 
-    print_r($this->debug(['endpoint'=>$url]));
+    print_r($this->setDebugMsg(['endpoint'=>$url]));
     //We got the response. We create a new array that returns an extra bit more of information than the general response
     //i.e: the total of returned elements
     $body = $this->auth->executeCurl($options);
@@ -297,20 +285,43 @@ class Api{
     if (!empty($body)){
       if(!isset($body['errors'])){
         //Respone is fine, no errors
-        if ( (in_array(key($body), ['employers']) && $body['employers'] != NULL) || 
-             (in_array(key($body), ['employer']) && $body['employer'] != NULL)) {
+        if (!$paginated){
+          //Normal response, not the list of employers (paginated)
+          if ( (in_array(key($body), ['employers']) && $body['employers'] != NULL) || 
+               (in_array(key($body), ['employer']) && $body['employer'] != NULL)) {
 
-          //We can have one employer or multiple because the endpoint is the same except for the parameter
-          //But the response is different, so we need this
-          $singleItem = (in_array(key($body), ['employer']) ? true : false );
-          $response = [
-            'type'  => 'response',
-            'total' => ($singleItem ? 1                   : count($body[key($body)])),
-            'data'  => ($singleItem ? [$body[key($body)]] : $body[key($body)]),
-          ];
+            //We can have one employer or multiple because the endpoint is the same except for the parameter
+            //But the response is different, so we need this
+            $singleItem = (in_array(key($body), ['employer']) ? true : false );
+            $response = [
+              'type'  => 'response',
+              'total' => ($singleItem ? 1                   : count($body[key($body)])),
+              'data'  => ($singleItem ? [$body[key($body)]] : $body[key($body)]),
+            ];
+
+          } else {
+            $response = $this->setError('Error in API request. Response is empty.');
+          }
 
         } else {
-          $response = $this->setError('Error in API request. Response is empty.');
+          //This is the response for the list of employers. It's different what we get from the API, so we need this else
+          if ($body['page'] > $body['total_pages']){
+            $response = $this->setError('Page requested doesn\'t exist.');
+          } else {
+            //$response = $body;
+
+            $response = [
+              'type'      => 'response',
+              'total'     => count($body['records']),
+              'page_info' => [
+                'page'          => $body['page'],
+                'total_pages'   => $body['total_pages'],
+                'total_records' => $body['total_records'],
+                'records_per_page' => $body['records_per_page'],
+              ],
+              'data'      => $body['records'],
+            ];
+          }
         }
 
       } else {
@@ -324,6 +335,25 @@ class Api{
     }
 
     return $this->_setResponse($response);
+  }
+
+
+  /**
+   * Returns an error message.
+   *
+   * @param string  $message
+   *   The error message that is in the array we are returning
+   *
+   * @return array
+   *   An array with the error message set
+   */
+  private function setError($message){
+
+    $error = array(
+      'type'    => 'error',
+      'message' => $message,
+    );
+    return $error;
   }
 
 

@@ -82,7 +82,7 @@ class GenericAuth{
    * @return string 
    *   The debug message
    */
-  public function debug($values){
+  public function setDebugMsg($values){
 
     if ($this->_debug){
       //We need an array, but we accept strings as well
