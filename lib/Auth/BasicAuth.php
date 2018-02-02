@@ -98,36 +98,26 @@ class BasicAuth extends GenericAuth{
     $this->_password = $password;
     $this->_url      = $url;
 
-    if(!empty($access_token)){
-      //We have stored (somehow) the token from a previous call.
+    //We need to get the token because we dont have it. We prepare the data for the POST request
+    $data = [
+      'email'    => $this->_email,
+      'password' => $this->_password,
+    ];
+    //Set the options for the request (with the data created) and passing the endpoind for the Auth collection
+    $options = $this->setCurlPostOptions($data, $this->_endpoint);
+    //Execute the call
+    $body    = $this->executeCurl($options);
+    //We got response, see if was successful or not.
+    if ($this->isValidAuth() && isset($body['access_token'])){
+      //We got the new access_token and other info from the response if success
+      $this->_access_token   = $body['access_token'];
+      $this->_partner_id     = $body['id'];
+      $this->_new_review_url = $body['reviews_url'];
 
-      //TODO check with IGP: there should be a checker in the API for the access_token
-      $this->_access_token = $access_token;
-      $this->setHttpCode(200);
-      $this->setHttpResponseMesagge('Logged with stored valid token');
-
+      $this->setHttpResponseMesagge('Logged successfuly using mail/pass via API');
     } else {
-      //We need to get the token because we dont have it. We prepare the data for the POST request
-      $data = [
-        'email'    => $this->_email,
-        'password' => $this->_password,
-      ];
-      //Set the options for the request (with the data created) and passing the endpoind for the Auth collection
-      $options = $this->setCurlPostOptions($data, $this->_endpoint);
-      //Execute the call
-      $body    = $this->executeCurl($options);
-      //We got response, see if was successful or not.
-      if ($this->isValidAuth() && isset($body['access_token'])){
-        //We got the new access_token and other info from the response if success
-        $this->_access_token   = $body['access_token'];
-        $this->_partner_id     = $body['id'];
-        $this->_new_review_url = $body['reviews_url'];
-
-        $this->setHttpResponseMesagge('Logged successfuly using mail/pass via API');
-      } else {
-        //We got an error (and we store it)
-        $this->setHttpResponseMesagge($body['errors']);
-      }
+      //We got an error (and we store it)
+      $this->setHttpResponseMesagge($body['errors']);
     }
   }
 
