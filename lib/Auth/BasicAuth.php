@@ -46,6 +46,20 @@ class BasicAuth extends GenericAuth{
   protected $_access_token;
 
   /**
+   * PartnerID is returned if the Authetication is success
+   *
+   * @var string
+   */
+  protected $_partner_id;
+
+  /**
+   * New Review URL is returned if the Authetication is success
+   *
+   * @var string
+   */
+  protected $_new_review_url;
+
+  /**
    * Endpoint for this API collection
    *
    * @var string
@@ -102,11 +116,13 @@ class BasicAuth extends GenericAuth{
       $options = $this->setCurlPostOptions($data, $this->_endpoint);
       //Execute the call
       $body    = $this->executeCurl($options);
-      
       //We got response, see if was successful or not.
       if ($this->isValidAuth() && isset($body['access_token'])){
-        //We got the new access_token
-        $this->_access_token = $body['access_token'];
+        //We got the new access_token and other info from the response if success
+        $this->_access_token   = $body['access_token'];
+        $this->_partner_id     = $body['id'];
+        $this->_new_review_url = $body['reviews_url'];
+
         $this->setHttpResponseMesagge('Logged successfuly using mail/pass via API');
       } else {
         //We got an error (and we store it)
@@ -164,6 +180,28 @@ class BasicAuth extends GenericAuth{
    */
   public function getApiToken(){
     return $this->_access_token;
+  }
+
+
+  /**
+   * Getter. Gets the API PartnerID linked to the logged user.
+   *
+   * @return string
+   *   The API PartnerID linked to the logged user.
+   */
+  public function getApiPartnerId(){
+    return $this->_partner_id;
+  }
+
+
+  /**
+   * Getter. Gets the API URL for writting new reviews linked to the logged user.
+   *
+   * @return string
+   *   The API URL for writting new reviews linked to the logged user.
+   */
+  public function getApiNewReviewUrl(){
+    return $this->_new_review_url;
   }
 
 
