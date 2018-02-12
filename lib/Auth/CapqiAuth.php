@@ -17,12 +17,27 @@ use \Exception;
  */
 class CapqiAuth{
 
+
+  /**
+   * Default lang for the API url. Depending on the lang, some values will be translated
+   *
+   * @var string
+   */
+  private $lang = 'en';
+
+  /**
+   * Array of accepted langs of the API. The values are the ISO code of the lang in smaller letters
+   *
+   * @var array
+   */
+  private $available_langs = ['en', 'fr'];  
+
   /**
    * Default url where the API is located. User can overwrite it via the settings parameter when initializing the object
    *
    * @var string
    */
-  private $baseUrl = 'https://transparencyatwork.org/api/partners/v1/';
+  private $baseUrl = 'https://transparencyatwork.org/%%lang%%/api/partners/v1/';
 
 
   /**
@@ -55,12 +70,24 @@ class CapqiAuth{
     //We loop the arguments the function we have used ('initialize') has
     foreach ($reflection->getParameters() as $param) {
       //The url is special, because we have a default one in this class
-      if($param->getName() === 'url'){
+      if ($param->getName() === 'lang') {
+        //It can happend that the lang for our API url is different than the default one.
+        //We allow to change it in the settings if the $lang is in the valid lang array and we will use this lang later
+        if (isset($settings['lang']) && in_array($settings['lang'], $this->available_langs)){
+          $this->lang = $settings['lang'];
+        }
+        //We have to add it to the arguments too
+        $args[] = $this->lang;
+
+      } else if($param->getName() === 'url'){
         if (isset($settings['url']) && $settings['url'] != '') {
-        //We add it to the arguments we will use to invoke our object
+          //We add it to the arguments we will use to invoke our object
           $args[] = $settings['url'];
         } else {
-          $args[] = $this->baseUrl;
+          //We can choose different languages, so we replace the token string with the lang we have gotten before
+          //If not, is the default one (english) 
+          $__url  = str_replace('%%lang%%', $this->lang, $this->baseUrl);
+          $args[] = $__url;
         }
       } else {
         if (isset($settings[$param->getName()])) {

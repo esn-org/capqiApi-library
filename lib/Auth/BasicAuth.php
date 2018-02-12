@@ -38,6 +38,14 @@ class BasicAuth extends GenericAuth{
    */
   public $_url;
 
+
+  /**
+   * Default lang for the API url. Depending on the lang, some values will be translated
+   *
+   * @var string
+   */
+  protected $_lang;
+
   /**
    * Token is returned if the Authetication is success
    *
@@ -82,7 +90,7 @@ class BasicAuth extends GenericAuth{
    * @throws Exception
    * @return BasicAuth object
    */
-  public function initialize($email, $password, $url, $access_token = null) {
+  public function initialize($email, $password, $lang = 'en', $url, $access_token = null) {
     //mEmail and password are mandatory, not the URL. But we trim them before doing anything
     $email    = trim($email);
     $password = trim($password);
@@ -97,6 +105,7 @@ class BasicAuth extends GenericAuth{
     $this->_email    = $email;
     $this->_password = $password;
     $this->_url      = $url;
+    $this->_lang     = $lang;
 
     //We need to get the token because we dont have it. We prepare the data for the POST request
     $data = [
@@ -107,6 +116,7 @@ class BasicAuth extends GenericAuth{
     $options = $this->setCurlPostOptions($data, $this->_endpoint);
     //Execute the call
     $body    = $this->executeCurl($options);
+
     //We got response, see if was successful or not.
     if ($this->isValidAuth() && isset($body['access_token'])){
       //We got the new access_token and other info from the response if success
@@ -115,6 +125,9 @@ class BasicAuth extends GenericAuth{
       $this->_new_review_url = $body['reviews_url'];
 
       $this->setHttpResponseMesagge('Logged successfuly using mail/pass via API');
+    } else if (isset($body['status']) && $body['status'] == '404') {
+      $this->setHttpCode(404);
+      $this->setHttpResponseMesagge($body['error']);
     } else {
       //We got an error (and we store it)
       $this->setHttpResponseMesagge($body['errors']);
@@ -150,6 +163,16 @@ class BasicAuth extends GenericAuth{
     return $this->_url;
   }
 
+
+  /**
+   * Getter. Gets the API lang.
+   *
+   * @return string 
+   *   The API lang.
+   */
+  public function getApiLang(){
+    return $this->_lang;
+  }
 
   /**
    * Getter. Gets the API email linked to the logged user.
