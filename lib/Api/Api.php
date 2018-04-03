@@ -43,6 +43,13 @@ class Api{
   protected $allowedSearchParameters = array();
 
   /**
+   * Allowed collections we can get a response from
+   *
+   * @var array
+   */
+  protected $supported_collections = array('employers', 'employer', 'sectors');
+
+  /**
    * The response from the API call (ok or error)
    *
    * @var array
@@ -212,11 +219,63 @@ class Api{
         'data'  => [],
       ];
       return $this->_setResponse($response);
+
     } else {
       //We get an $id, so we get this employer
       $url = $this->endpoint.'/'.$id;
       return $this->makeRequest($url);
     }
+  }
+
+
+  /**
+   * Does a GET request to the API to get one item.
+   *
+   * @param array   $data
+   *   The id of the item we want to get from the API
+   *
+   * @return array
+   *   An array with the information gotten from the API call
+   */
+  protected function genericPost($name = '', $sector = '', $country = ''){
+
+    if ($name == '' || $sector == '' || $country == ''){
+      //We dont allow this function witn an empty $id. That is only for the list of employers
+      $response = [
+        'type'  => 'response',
+        'total' => 0,
+        'data'  => [],
+      ];
+      return $this->_setResponse($response);
+
+    } else {
+
+      $data = [
+        'employer' => [
+          'name'      => $name,
+          'sector_id' => $sector,
+          'locations_attributes' => ['country_code' => $country],
+        ],
+      ];
+
+      //We get an $id, so we get this employer
+      $url = $this->endpoint;
+      return $this->makeRequest($url, $data, 'POST');
+    }
+  }
+
+
+  /**
+   * Does a GET request to the API to get the generic page (no endpoint).
+   *
+   * @return array
+   *   An array with the information gotten from the API call
+   */
+  protected function genericFullGet(){
+
+    //This is the GET request to the normal path (no endpoint)
+    $url = $this->endpoint;
+    return $this->makeRequest($url);
   }
 
 
@@ -257,9 +316,7 @@ class Api{
     //In POST, parameter contains the data for the headers
     if (!empty($parameters) && $method == 'POST'){
       //should we accept PUT and PATCH too as methods??
-      foreach ($parameters as $key => $parameter) {
-        $data[$key] = trim($parameter);
-      }
+      $data = $parameters;
     }
 
     //We set different CURL options depending if it is a GET or a POST
@@ -269,6 +326,10 @@ class Api{
     } else if ($method == 'POST'){
       //TODO:: should we accept PUT and PATCH too as methods??
       //Or control we have the data at least?
+      if(empty($data)){
+        $response = $this->setError('Empty data in POST request');
+        return $this->_setResponse($response);
+      }
 
       //We need the data because is a POST
       $options = $this->auth->setCurlPostOptions($data, $url);
@@ -287,8 +348,7 @@ class Api{
         //Respone is fine, no errors
         if (!$paginated){
           //Normal response, not the list of employers (paginated)
-          if ( (in_array(key($body), ['employers']) && $body['employers'] != NULL) || 
-               (in_array(key($body), ['employer']) && $body['employer'] != NULL)) {
+          if (in_array(key($body), $this->supported_collections) && $body[key($body)] != NULL ){
 
             //We can have one employer or multiple because the endpoint is the same except for the parameter
             //But the response is different, so we need this
@@ -300,26 +360,27 @@ class Api{
             ];
 
           } else {
+      
             $response = $this->setError('Error in API request. Response is empty.');
           }
 
         } else {
           //This is the response for the list of employers. It's different what we get from the API, so we need this else
           if ($body['page'] > $body['total_pages']){
+
             $response = $this->setError('Page requested doesn\'t exist.');
           } else {
-            //$response = $body;
 
             $response = [
               'type'      => 'response',
               'total'     => count($body['records']),
+              'data'      => $body['records'],
               'page_info' => [
-                'page'          => $body['page'],
-                'total_pages'   => $body['total_pages'],
-                'total_records' => $body['total_records'],
+                'page'             => $body['page'],
+                'total_pages'      => $body['total_pages'],
+                'total_records'    => $body['total_records'],
                 'records_per_page' => $body['records_per_page'],
               ],
-              'data'      => $body['records'],
             ];
           }
         }

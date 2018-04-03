@@ -56,6 +56,18 @@ class Employers extends Api{
 
 
   /**
+   * Does the API request to get an item of this collection
+   *
+   * @return array
+   *   Array with the response from the API request
+   */
+  public function put($name, $sector, $country){
+
+    return $this->genericPost($name, $sector, $country);
+  }
+
+
+  /**
    * Does the API request to get all the items on a page (PAGE_ITEMS) of this collection
    *
    * @param int  $page
