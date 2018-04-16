@@ -239,7 +239,7 @@ class Api{
    */
   protected function genericPost($name = '', $sector = '', $country = ''){
 
-    if ($name == '' || $sector == '' || $country == ''){
+    if ($name == '' || $sector == '' || $country == ''){
       //We dont allow this function witn an empty $id. That is only for the list of employers
       $response = [
         'type'  => 'response',
@@ -253,8 +253,8 @@ class Api{
       $data = [
         'employer' => [
           'name'      => $name,
-          'sector_id' => $sector,
-          'locations_attributes' => ['country_code' => $country],
+          'sector_id' => (int)$sector,
+          'locations_attributes' => [['country_code' => $country]],
         ],
       ];
 
