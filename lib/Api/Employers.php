@@ -46,10 +46,13 @@ class Employers extends Api{
   /**
    * Does the API request to get an item of this collection
    *
+   * @param int   $id
+   *   The id of the item (employer) we want to get from the API
+   *
    * @return array
    *   Array with the response from the API request
    */
-  public function get($id){
+  public function get($id = ''){
 
     return $this->genericGet($id);
   }
@@ -57,6 +60,13 @@ class Employers extends Api{
 
   /**
    * Does the API request to get an item of this collection
+   *
+   * @param string  $name
+   *   The name of the employer to create
+   * @param int     $sector
+   *   The sector where the employer operates on (from the sector list)
+   * @param string  $country
+   *   The country code (2-digits ISO format) of the country where the employer is from
    *
    * @return array
    *   Array with the response from the API request
@@ -71,7 +81,7 @@ class Employers extends Api{
    * Does the API request to get all the items on a page (PAGE_ITEMS) of this collection
    *
    * @param int  $page
-   *   The page we want to get the list of employers. Default value = 1
+   *   The page we want to get the list of employers from. Default value = 1
    * @param int  $items
    *   The number of items (employers) we want to get. Default value = PAGE_ITEMS
    *
@@ -93,6 +103,8 @@ class Employers extends Api{
    *
    * @return string
    *   URL to the employer profile in the website
+   *
+   * @deprecated
    */
   public function createProfileLink($user){
 
@@ -107,6 +119,8 @@ class Employers extends Api{
    *
    * @return string
    *   URL to the website without the user endpoint
+   *
+   * @deprecated
    */
   public function createUrlLink(){
     $host = $this->auth->getApiHostUrlonly();

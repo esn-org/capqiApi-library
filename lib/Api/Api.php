@@ -231,8 +231,12 @@ class Api{
   /**
    * Does a GET request to the API to get one item.
    *
-   * @param array   $data
-   *   The id of the item we want to get from the API
+   * @param string  $name
+   *   The name of the employer to create
+   * @param int     $sector
+   *   The sector where the employer operates on to create
+   * @param string  $country
+   *   The country code of the country where the employer is from
    *
    * @return array
    *   An array with the information gotten from the API call
@@ -357,6 +361,14 @@ class Api{
               'type'  => 'response',
               'total' => ($singleItem ? 1                   : count($body[key($body)])),
               'data'  => ($singleItem ? [$body[key($body)]] : $body[key($body)]),
+            ];
+
+          } else if (in_array(key($body), $this->supported_collections) && $body[key($body)] == NULL ){
+
+            $response = [
+              'type'  => 'response',
+              'total' => 0,
+              'data'  => [],
             ];
 
           } else {

@@ -38,7 +38,6 @@ class BasicAuth extends GenericAuth{
    */
   public $_url;
 
-
   /**
    * Default lang for the API url. Depending on the lang, some values will be translated
    *
@@ -217,74 +216,5 @@ class BasicAuth extends GenericAuth{
     return $this->_new_review_url;
   }
 
-
-  /**
-   * Set the options (headers, data..) for a GET request using CURL
-   *  
-   * @param string $endpoint     
-   *   The endpoint of the API collection we will call  
-   *
-   * @return array               
-   *   The array with all the options
-   */
-  public function setCurlGetOptions($endpoint = ''){
-    //If we dont specify the endpoint, we use the local one of the object (We use this function for all the requests)
-    $endpoint = ($endpoint == '' ? $this->_endpoint : $endpoint);
-    //Set all the options
-    $options[CURLOPT_URL]            = $this->getApiUrl().$endpoint; //Concatenate endpoint to the url we already have
-    $options[CURLOPT_RETURNTRANSFER] = true;
-    //IT is supposed we have a token, otherwise we will get an error
-    $options[CURLOPT_HTTPHEADER]     = $this->prepareAuthorizationHeader();
-
-    return $options;
-  }
-
-
-  /**
-   * Set the options (headers, data..) for a POST request using CURL
-   *  
-   * @param array  $data         
-   *   The data with the info for the POST request  
-   * @param string $endpoint     
-   *   The endpoint of the API collection we will call  
-   *
-   * @return array               
-   *   The array with all the options
-   */
-  public function setCurlPostOptions($data, $endpoint = ''){
-    
-    //This API wants the data in JSON format
-    if (is_array($data)){
-      $data = json_encode($data);  
-    }
-    //If we dont specify the endpoint, we use the local one of the object (We use this function for all the requests)
-    $endpoint = ($endpoint == '' ? $this->_endpoint : $endpoint);
-    //Set all the options
-    $options[CURLOPT_URL]            = $this->getApiUrl().$endpoint;
-    $options[CURLOPT_RETURNTRANSFER] = true;
-    $options[CURLOPT_POST]           = true; 
-    $options[CURLOPT_POSTFIELDS]     = $data; //The data for the POST request
-    if ($this->_access_token == ''){
-      //No token, header for request a new one
-      $options[CURLOPT_HTTPHEADER]   = array('Accept: application/json', 'Content-Type: application/json');
-    } else {
-      //Header with token authorization
-      $options[CURLOPT_HTTPHEADER]   = $this->prepareAuthorizationHeader();  
-    }
-    //Return the array with all the options for the headers
-    return $options;
-  }
-
-
-  /**
-   * Set an special header for the CURL function with the authorization for the API  
-   *
-   * @return array              
-   *   The array the authorization header
-   */
-  private function prepareAuthorizationHeader(){
-    //We set this specific header
-    return array('Authorization: Bearer '.$this->getApiToken(), 'Content-Type: application/json');
-  }
 
 }
