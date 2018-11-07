@@ -12,8 +12,6 @@ namespace Capqi\Api;
 
 use Capqi\Functions\Urls;
 
-define("PAGE_ITEMS", 15);
-
 /**
  * Employers Collection
  */
