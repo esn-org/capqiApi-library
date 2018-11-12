@@ -5,9 +5,5 @@ This repository contains the PHP library for the project [CAPQI](http://capqi-pr
 In order to use this library, you need to create an account in the platform [TransparencyAtWork](http://transparencyatwork.org) first so you can log in there and be able to use this library
 
 
-Documentation and examples of this library will be written soon.
+Documentation and examples of this library can be found in the [WIKI](/wiki) section of this repository.
 
-You must run composer in order to install this library and its dependencies
-```
-composer install
-```
